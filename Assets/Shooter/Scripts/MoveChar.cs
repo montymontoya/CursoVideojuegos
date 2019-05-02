@@ -53,7 +53,7 @@ public class MoveChar : MonoBehaviour {
         {
             myBodyPlayer.localPosition += myBodyPlayer.right * Time.deltaTime * walkSpeed;
         }
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
             myBodyPlayer.localPosition -= myBodyPlayer.right * Time.deltaTime * walkSpeed;
         }
