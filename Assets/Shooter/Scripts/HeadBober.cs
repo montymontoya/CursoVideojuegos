@@ -9,6 +9,7 @@ public class HeadBober : MonoBehaviour
     public float bobbingSpeed = 0.18f;
     public float bobbingAmount = 0.05f;
     public float midpoint = 0.0f;
+    public string eje = "y";
     private float oBob;
 
     private void Start()
@@ -48,14 +49,27 @@ public class HeadBober : MonoBehaviour
             float totalAxes = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             totalAxes = Mathf.Clamp(totalAxes, 0.0f, 1.0f);
             translateChange = totalAxes * translateChange;
-            cSharpConversion.y = midpoint + translateChange;
+            cSharpConversion=Selector(eje, cSharpConversion, midpoint + translateChange);
+            //cSharpConversion.y = midpoint + translateChange;
         }
         else
         {
-            cSharpConversion.y = midpoint;
+            cSharpConversion=Selector(eje, cSharpConversion, midpoint);
         }
 
         transform.localPosition = cSharpConversion;
     }
 
+
+    Vector3 Selector(string toTest, Vector3 Pos,float point)
+    {
+        if (toTest == "x")
+            Pos.x = point;
+        else if (toTest == "z")
+            Pos.z = point;
+        else
+            Pos.y = point;
+
+        return Pos;
+    }
 }
