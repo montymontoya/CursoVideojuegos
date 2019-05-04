@@ -4,16 +4,33 @@ using UnityEngine;
 
 public class gunController : MonoBehaviour
 {
-    public Transform gun;
-    public Transform posAim;
-    private Vector3 originalPos;
-    private Quaternion originalRot;
-    public float moveSpeed = 1;
-    public float rotSpeed = 10;
-    public bool aiming;
+    //variables apuntar
+    public Transform gun; // Transform del arma que utilizamos
+    public Transform posAim; // Transform de la posición que debe tener el arma al apuntar
+    public float moveSpeed = 1; // velocidad del movimiento del arma al apuntar
+    public float rotSpeed = 10; // velocidad de la rotación del arma al apuntar
+    public bool aiming; // bandera para determinar si estamos apuntando o no
+    private Vector3 originalPos; // posición original del arma cuando no apunta
+    private Quaternion originalRot; // rotación original del arma cuando no apunta
+
+    // variables apuntar laser
+    public Transform laserGun; // Transform del objeto de donde saldrá el laser
+    public LineRenderer laserLine; // Laser
+    public bool laserOn;
+
+    // variables para disparar
+    public GameObject bala;
+    public Transform balaPos;
+    public Camera myCam;
+    public float fireRate = 1;
+    
+    
+    
+
     // Start is called before the first frame update
     void Start()
     {
+        myCam = Camera.main;
         originalPos = gun.transform.localPosition;
         originalRot = gun.transform.localRotation;
     }
@@ -30,6 +47,7 @@ public class gunController : MonoBehaviour
          */
         if (Input.GetMouseButtonDown(0))
         {
+            Disparar();
 //Fire Anim
         }
             
@@ -42,14 +60,63 @@ public class gunController : MonoBehaviour
          * 
          */
         if (aiming)
+        {
             Apuntar();
+        }
+            
         else
             ResetPos();
 
+        if (Input.GetKeyDown(KeyCode.L))
+            laserOn = !laserOn;
+
+        ApuntarLaser(laserOn);
 
     }
 
+    void ApuntarLaser(bool status)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(myCam.transform.position, myCam.transform.forward, out hit, Mathf.Infinity))
+        {
+            laserLine.SetPosition(0, laserGun.position);
+            laserLine.SetPosition(1, hit.point);
+        }
+        else
+        {
+            laserLine.SetPosition(0, laserGun.position);
+            laserLine.SetPosition(1, myCam.transform.forward*1000);
+        }
 
+        if (status)
+            laserLine.gameObject.SetActive(true);
+        else
+            laserLine.gameObject.SetActive(false);
+
+    }
+    
+    /* SECCION DE DISPARAR */
+    void Disparar()
+    {
+        GameObject neuBala = Instantiate<GameObject>(bala);
+        neuBala.transform.parent = balaPos;
+        neuBala.transform.localPosition = Vector3.zero;
+        neuBala.transform.localEulerAngles = Vector3.zero;
+        neuBala.transform.parent = null;
+        neuBala.GetComponent<Rigidbody>().AddRelativeForce(0,1000,0);
+
+        
+
+        RaycastHit hit;
+        if (Physics.Raycast(myCam.transform.position, myCam.transform.forward, out hit, Mathf.Infinity))
+        {
+            Debug.DrawRay(gun.position, gun.forward * hit.distance, Color.yellow);
+
+        }
+    }
+    /********************/
+
+    /* SECCION DE APUNTAR */
     void Apuntar()
     {
         gun.localPosition = Vector3.MoveTowards(gun.localPosition, posAim.localPosition, moveSpeed * Time.deltaTime);
@@ -62,4 +129,5 @@ public class gunController : MonoBehaviour
 
         gun.localRotation = Quaternion.Slerp(gun.localRotation, originalRot, rotSpeed * Time.deltaTime);
     }
+    /*********************/
 }
