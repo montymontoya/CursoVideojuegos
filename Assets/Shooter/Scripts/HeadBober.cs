@@ -11,10 +11,13 @@ public class HeadBober : MonoBehaviour
     public float midpoint = 0.0f;
     public string eje = "y";
     private float oBob;
-
+    public Transform myCam;
+    private Vector3 headPosition;
     private void Start()
     {
-        oBob = bobbingSpeed;   
+        oBob = bobbingSpeed;
+        if (myCam == null)
+            myCam = Camera.main.transform;
     }
 
     void Update()
@@ -22,13 +25,13 @@ public class HeadBober : MonoBehaviour
         float waveslice = 0.0f;
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-
-        Vector3 cSharpConversion = transform.localPosition;
+        headPosition = transform.localPosition;
 
         if (Mathf.Abs(horizontal) == 0 && Mathf.Abs(vertical) == 0)
         {
             timer = 0.0f;
         }
+
         else
         {
             if (Input.GetKeyDown(KeyCode.LeftShift)) //correr
@@ -49,15 +52,14 @@ public class HeadBober : MonoBehaviour
             float totalAxes = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             totalAxes = Mathf.Clamp(totalAxes, 0.0f, 1.0f);
             translateChange = totalAxes * translateChange;
-            cSharpConversion=Selector(eje, cSharpConversion, midpoint + translateChange);
-            //cSharpConversion.y = midpoint + translateChange;
+            headPosition = Selector(eje, headPosition, midpoint + translateChange);
         }
         else
         {
-            cSharpConversion=Selector(eje, cSharpConversion, midpoint);
+            headPosition = Selector(eje, headPosition, midpoint);
         }
 
-        transform.localPosition = cSharpConversion;
+        transform.localPosition = headPosition;
     }
 
 

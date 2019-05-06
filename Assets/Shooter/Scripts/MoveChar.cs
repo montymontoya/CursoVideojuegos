@@ -3,29 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveChar : MonoBehaviour {
-    public Transform myBodyHead;
+
+    //variables movimiento general
     public Transform myBodyPlayer;
+    public float walkSpeed = 1;
+    public float runSpeed = 2;
+
+    //variables mirar
+    
+    public Transform myBodyHead;
     public float xSpeed = 1;
     public float ySpeed = 1;
     public float yaw, pitch;
-    public float walkSpeed=1;
-    public float runSpeed = 2;
+
+    //variables saltar
+    public Rigidbody body;
+    public float jumpForce = 1000;
+
+    private bool agachado;
 	// Use this for initialization
 	void Start () {
-        Cursor.visible = false;
+        Cursor.visible = false; // esconder cursor de mouse
         if (myBodyPlayer == null)
             myBodyPlayer = this.transform;
         if (myBodyHead == null)
             myBodyHead = Camera.main.transform;
-	}
+
+        body = myBodyPlayer.GetComponent<Rigidbody>();
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-
         Mira();
-
         Avanzar();
-
+        Saltar();
+        Agacharse();
     }
 
     void Mira()
@@ -35,7 +47,29 @@ public class MoveChar : MonoBehaviour {
         myBodyHead.transform.localEulerAngles = new Vector3(pitch, 0.0f, 0.0f);
         myBodyPlayer.transform.localEulerAngles = new Vector3(0.0f, yaw, 0.0f);
     }
+    void Agacharse()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            agachado = !agachado;
+        }
+        if (agachado)
+        {
+            myBodyHead.localPosition = Vector3.MoveTowards(myBodyHead.localPosition, new Vector3(0, -0.13f, 0), Time.deltaTime * 3);
+        }
+        else
+        {
+            myBodyHead.localPosition = Vector3.MoveTowards(myBodyHead.localPosition, new Vector3(0, 0.8f, 0), Time.deltaTime * 3);
+        }
+    }
 
+    void Saltar()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            body.AddForce(0, jumpForce, 0);
+        }
+    }
     void Avanzar()
     {
         if (Input.GetKey(KeyCode.W))

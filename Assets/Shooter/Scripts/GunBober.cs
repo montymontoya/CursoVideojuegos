@@ -11,12 +11,14 @@ public class GunBober : MonoBehaviour
     public float midpoint = 0.0f;
     public string eje = "y";
     private float resetTime = 0;
-    private float oBob;
+    private float oBobSpeed;
+    private float oBobAmount;
     private bool aiming;
 
     private void Start()
     {
-        oBob = bobbingSpeed;   
+        oBobAmount = bobbingAmount;
+        oBobSpeed = bobbingSpeed;   
     }
 
     void Update()
@@ -33,7 +35,7 @@ public class GunBober : MonoBehaviour
         else
         {
             resetTime += Time.deltaTime;
-            if (resetTime >= 0.8f)
+            if (resetTime >= 0.3f)
             {
 
 
@@ -50,9 +52,17 @@ public class GunBober : MonoBehaviour
                 else
                 {
                     if (Input.GetKeyDown(KeyCode.LeftShift)) //correr
+                    {
                         bobbingSpeed *= 2;
+                        bobbingAmount *= 2;
+                    }
+                        
                     if (Input.GetKeyUp(KeyCode.LeftShift))
-                        bobbingSpeed = oBob;
+                    {
+                        bobbingAmount = oBobAmount;
+                        bobbingSpeed = oBobSpeed;
+                    }
+                        
 
                     waveslice = Mathf.Sin(timer);
                     timer = timer + bobbingSpeed;

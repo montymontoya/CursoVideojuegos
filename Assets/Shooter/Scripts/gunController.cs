@@ -14,7 +14,7 @@ public class gunController : MonoBehaviour
     private Quaternion originalRot; // rotación original del arma cuando no apunta
 
     // variables apuntar laser
-    public Transform laserGun; // Transform del objeto de donde saldrá el laser
+    public Transform laserOrigin; // Transform del objeto de donde saldrá el laser
     public LineRenderer laserLine; // Laser
     public bool laserOn;
 
@@ -22,6 +22,7 @@ public class gunController : MonoBehaviour
     public GameObject bala;
     public Transform balaPos;
     public Camera myCam;
+    public float fireForce=200;
     public float fireRate = 1;
     
     
@@ -38,57 +39,32 @@ public class gunController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(1))
-            aiming = true;
-        if (Input.GetMouseButtonUp(1))
-            aiming = false;
-        /*
-         * 
-         */
-        if (Input.GetMouseButtonDown(0))
-        {
-            Disparar();
-//Fire Anim
-        }
-            
-        if (Input.GetMouseButtonUp(0))
-        {
-//Stop Fire Anim
-        }
-            
-        /*
-         * 
-         */
-        if (aiming)
-        {
-            Apuntar();
-        }
-            
-        else
-            ResetPos();
-
-        if (Input.GetKeyDown(KeyCode.L))
-            laserOn = !laserOn;
-
-        ApuntarLaser(laserOn);
+       Apuntar();
+       Disparar();
+       //ApuntarLaser();
 
     }
 
-    void ApuntarLaser(bool status)
+    void ApuntarLaser()
     {
+        if (Input.GetMouseButtonDown(0))
+            laserOn = !laserOn;
+
         RaycastHit hit;
         if (Physics.Raycast(myCam.transform.position, myCam.transform.forward, out hit, Mathf.Infinity))
         {
-            laserLine.SetPosition(0, laserGun.position);
-            laserLine.SetPosition(1, hit.point);
+            Vector3 point = laserOrigin.InverseTransformPoint(hit.point);
+            //laserLine.SetPosition(0, laserOrigin.localPosition);
+            laserLine.SetPosition(1, point);
         }
         else
         {
-            laserLine.SetPosition(0, laserGun.position);
-            laserLine.SetPosition(1, myCam.transform.forward*1000);
+            Vector3 point = laserOrigin.InverseTransformPoint(myCam.transform.forward * 10000);
+            //laserLine.SetPosition(0, laserOrigin.position);
+            laserLine.SetPosition(1, point);
         }
 
-        if (status)
+        if (laserOn)
             laserLine.gameObject.SetActive(true);
         else
             laserLine.gameObject.SetActive(false);
@@ -98,20 +74,28 @@ public class gunController : MonoBehaviour
     /* SECCION DE DISPARAR */
     void Disparar()
     {
-        GameObject neuBala = Instantiate<GameObject>(bala);
-        neuBala.transform.parent = balaPos;
-        neuBala.transform.localPosition = Vector3.zero;
-        neuBala.transform.localEulerAngles = Vector3.zero;
-        neuBala.transform.parent = null;
-        neuBala.GetComponent<Rigidbody>().AddRelativeForce(0,1000,0);
-
-        
-
-        RaycastHit hit;
-        if (Physics.Raycast(myCam.transform.position, myCam.transform.forward, out hit, Mathf.Infinity))
+        if (Input.GetMouseButtonDown(0))
         {
-            Debug.DrawRay(gun.position, gun.forward * hit.distance, Color.yellow);
 
+
+            GameObject neuBala = Instantiate<GameObject>(bala);
+            neuBala.transform.parent = balaPos;
+            neuBala.transform.localPosition = Vector3.zero;
+            neuBala.transform.localEulerAngles = Vector3.zero;
+            neuBala.transform.parent = null;
+          
+            
+
+            RaycastHit hit;
+            if (Physics.Raycast(myCam.transform.position, myCam.transform.forward, out hit, Mathf.Infinity))
+            {
+                //Debug.DrawRay(gun.position, gun.forward * hit.distance, Color.yellow);
+                neuBala.GetComponent<Rigidbody>().AddForce((hit.point-neuBala.transform.position) * fireForce);
+            }
+            else
+            {
+                neuBala.GetComponent<Rigidbody>().AddForce((neuBala.transform.up) * fireForce);
+            }
         }
     }
     /********************/
@@ -119,15 +103,28 @@ public class gunController : MonoBehaviour
     /* SECCION DE APUNTAR */
     void Apuntar()
     {
-        gun.localPosition = Vector3.MoveTowards(gun.localPosition, posAim.localPosition, moveSpeed * Time.deltaTime);
-        var rotation = Quaternion.LookRotation(Vector3.zero, gun.localPosition);
-        gun.localRotation = Quaternion.Slerp(gun.localRotation, rotation, rotSpeed * Time.deltaTime);
-    }
-    void ResetPos()
-    {
-        gun.localPosition = Vector3.MoveTowards(gun.localPosition, originalPos, moveSpeed * Time.deltaTime);
+        if (Input.GetMouseButton(1))
+        {
+            gun.localPosition = Vector3.MoveTowards(gun.localPosition, posAim.localPosition, moveSpeed * Time.deltaTime);
+            var rotation = Quaternion.LookRotation(Vector3.zero, gun.localPosition);
+            gun.localRotation = Quaternion.Slerp(gun.localRotation, rotation, rotSpeed * Time.deltaTime);
+        }
+        if (Input.GetMouseButtonUp(1))
+            aiming = true;
 
-        gun.localRotation = Quaternion.Slerp(gun.localRotation, originalRot, rotSpeed * Time.deltaTime);
+        if (aiming)
+        {
+            gun.localPosition = Vector3.MoveTowards(gun.localPosition, originalPos, moveSpeed * Time.deltaTime);
+            gun.localRotation = Quaternion.Slerp(gun.localRotation, originalRot, rotSpeed * Time.deltaTime);
+
+            if (gun.localPosition == originalPos && gun.localRotation == originalRot)
+                aiming = false;
+        }        
+        else
+        {
+            
+        }
+
     }
     /*********************/
 }
