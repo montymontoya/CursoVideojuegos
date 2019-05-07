@@ -38,7 +38,6 @@ public class GunBober : MonoBehaviour
             if (resetTime >= 0.3f)
             {
 
-
                 float waveslice = 0.0f;
                 float horizontal = Input.GetAxis("Horizontal");
                 float vertical = Input.GetAxis("Vertical");

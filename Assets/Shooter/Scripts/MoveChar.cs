@@ -24,6 +24,7 @@ public class MoveChar : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         Cursor.visible = false; // esconder cursor de mouse
+        Cursor.lockState = CursorLockMode.Confined;
         if (myBodyPlayer == null)
             myBodyPlayer = this.transform;
         if (myBodyHead == null)

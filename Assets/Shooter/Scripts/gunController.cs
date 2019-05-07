@@ -41,13 +41,13 @@ public class gunController : MonoBehaviour
     {
        Apuntar();
        Disparar();
-       //ApuntarLaser();
+       ApuntarLaser();
 
     }
 
     void ApuntarLaser()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.L))
             laserOn = !laserOn;
 
         RaycastHit hit;
